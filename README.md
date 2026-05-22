@@ -1,15 +1,17 @@
-# ICS5200-dissertation
+# ICS5200 Master Dissertation
 
 Code repository for the Master of Science in Artificial Intelligence (AI) dissertation.
 
-- Study-unit code: ICS5200.
-- Deadline: End of June 2027.
+- **Dissertation Name**: Drug Discovery Learning with Low Data.
+- **Study-unit code**: ICS5200.
+- **Deadline**: End of June 2027.
+- **Author**: [Michael Vella](michael.vella.20@um.edu.mt)
 
 ## Environment Replication
 
 Requires that Python is pre-installed on the host machine. Python version: 3.12.3.
 
-(TODO) Later on refactor solution to work with docker.
+Future work: To refactor solution to work with docker.
 
 1. Run `python -m venv .venv` to create the Python virtual environment. `python` here refers to the alias of the Python executable path and depends on the alias used on the host machine (full Python path can also be used). Running this command will create a Python virtual environment depending on the base Python version being used to create the environment.
 2. Activate virtual environment by running `.venv\Scripts\activate` (Windows) or `source .venv/bin/activate` (Linux).
