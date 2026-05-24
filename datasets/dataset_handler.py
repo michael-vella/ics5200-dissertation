@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 import pandas as pd
 
@@ -46,32 +47,35 @@ class DatasetHandler:
         self._logger.info(f"Processed dataset path: '{processed_path}'")
 
         # by default we use the ECFP dataset creation strategy
-        # if a different `feature_type` that is no 'ecfp' is injected
-        # the dataset creation strategy is overridden
+        # if a different `feature_type` that is not 'ecfp' is injected
+        # a different creation strategy is used
         dataset_creator: DatasetCreationStrategy = ECFPDatasetCreator()
         if feature_type == dgl_feature_type:
             dataset_creator = DGLDatasetCreator()
         if feature_type == dgl_with_bonds_feature_type:
             dataset_creator = DGLBondsDatasetCreator()
 
-        # todo:
-        # check if dataset already exists or (fore_refresh is not true)
-        # if it does not exists, create folder directory + dataset pkl file
-        # log success (or that dataset already exists)
+        if not processed_path.exists() or force_refresh:
+            self._logger.info(f"Creating dataset for '{dataset_source}' source, '{feature_type}' feature type and saving to '{processed_path}' location...")
+            processed_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # dataset_creator.create(df=pdf)
-        # self._logger.info("Succe")
+            dataset = dataset_creator.create(df=pdf)
+            dataset.to_pickle(processed_path)
 
-    def __get_raw_dataset_path(self, dataset_source: str) -> str:
+            self._logger.info(f"Dataset saved to '{processed_path}'")
+        else:
+            self._logger.info(f"Dataset already exists at '{processed_path}', skipping creation")
+
+    def __get_raw_dataset_path(self, dataset_source: str) -> Path:
         """
         todo
         """
         self._logger.info(f"Generating (raw) path for '{dataset_source}' dataset")
-        return DATA_RAW_DIR + f"/{dataset_source}.csv"
+        return Path(DATA_RAW_DIR + f"/{dataset_source}.csv")
 
-    def __get_processed_dataset_path(self, dataset_source: str, feature_type: str) -> str:
+    def __get_processed_dataset_path(self, dataset_source: str, feature_type: str) -> Path:
         """
         todo
         """
         self._logger.info(f"Generating (processed) path for '{dataset_source}' dataset '{feature_type}' feature type")
-        return DATA_PROCESSED_DIR + f"/{dataset_source}/{feature_type}.pkl"
+        return Path(DATA_PROCESSED_DIR + f"/{dataset_source}/{feature_type}.pkl")

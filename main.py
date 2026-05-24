@@ -8,4 +8,4 @@ logging.basicConfig(
 )
 
 handler = DatasetHandler()
-df = handler.create_dataset(dataset_source="muv", feature_type="ecfp", force_refresh=False)
+df = handler.create_dataset(dataset_source="muv", feature_type="ecfp", force_refresh=True)

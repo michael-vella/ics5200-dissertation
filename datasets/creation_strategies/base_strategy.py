@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import logging
 
 import pandas as pd
 
@@ -10,6 +11,12 @@ class DatasetCreationStrategy(ABC):
     Each concrete strategy encapsulates a specific pipeline for transforming
     a raw CSV into a processed dataset.
     """
+    def __init__(self) -> None:
+        """
+        Initialises the base strategy by setting up a logger instance.
+        """
+        self._logger = logging.getLogger(__name__)
+
     @abstractmethod
     def create(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """
