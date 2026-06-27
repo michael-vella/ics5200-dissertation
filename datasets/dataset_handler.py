@@ -4,24 +4,46 @@ from pathlib import Path
 import pandas as pd
 
 from constants import DATA_RAW_DIR, DATA_PROCESSED_DIR
+from datasets.enums import FeatureType, DatasetSource
 from datasets.creation_strategies.base_strategy import DatasetCreationStrategy
 from datasets.creation_strategies.ecfp import ECFPDatasetCreator
 from datasets.creation_strategies.dgl import DGLDatasetCreator
 from datasets.creation_strategies.dgl_with_bonds import DGLBondsDatasetCreator
 
+
+# maps each feature type to the dataset creation strategy responsible for it
+_STRATEGIES: dict[FeatureType, type[DatasetCreationStrategy]] = {
+    FeatureType.ECFP: ECFPDatasetCreator,
+    FeatureType.DGL: DGLDatasetCreator,
+    FeatureType.DGL_WITH_BONDS: DGLBondsDatasetCreator,
+}
+
+
 class DatasetHandler:
     """
     Central interface for any dataset handling related processes.
 
-    todo
+    Provides a single entry point for loading raw datasets from disk and for
+    creating processed datasets using the various dataset creation strategies
+    (ECFP, DGL and DGL with bonds).
     """
     def __init__(self) -> None:
+        """
+        Initialises the DatasetHandler by setting up a logger instance.
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.info("Initialised DatasetHandler class")
 
-    def load_raw_dataset(self, dataset_source: str) -> pd.DataFrame:
+    def load_raw_dataset(self, dataset_source: DatasetSource) -> pd.DataFrame:
         """
-        todo
+        Loads a raw dataset from a CSV file into a pandas DataFrame.
+
+        Args:
+            dataset_source (DatasetSource): The dataset source, used to resolve
+                the raw CSV file path.
+
+        Returns:
+            pd.DataFrame: The raw dataset loaded from the CSV file.
         """
         raw_path = self.__get_raw_dataset_path(dataset_source=dataset_source)
         self._logger.info(f"Raw dataset path: '{raw_path}'")
@@ -31,29 +53,49 @@ class DatasetHandler:
 
         return pdf
 
-    def create_dataset(self, dataset_source: str, feature_type: str, force_refresh: bool) -> None:
+    def create_dataset(self, dataset_source: DatasetSource, feature_type: FeatureType, force_refresh: bool) -> None:
         """
-        todo
+        Creates a processed dataset for a given source and feature type.
+
+        Loads the raw dataset, selects the appropriate dataset creation strategy
+        based on the requested feature type, and persists the resulting dataset
+        as a pickle file. If a processed dataset already exists, creation is
+        skipped unless a refresh is forced.
+
+        Args:
+            dataset_source (DatasetSource): The dataset source, used to resolve
+                the raw and processed dataset paths.
+            feature_type (FeatureType): Feature representation to generate.
+                Accepts a FeatureType member.
+            force_refresh (bool): If True, recreates and overwrites the processed
+                dataset even if it already exists.
+
+        Raises:
+            ValueError: If dataset_source or feature_type does not correspond to
+                a valid enum member.
         """
-        ecfp_feature_type = "ecfp"
-        dgl_feature_type = "dgl"
-        dgl_with_bonds_feature_type = "dgl_with_bonds"
-        possible_feature_types = {ecfp_feature_type, dgl_feature_type, dgl_with_bonds_feature_type}
-        assert feature_type in possible_feature_types, f"Feature type '{feature_type}' not available. Possible feature types: '{possible_feature_types}'"
+        try:
+            dataset_source = DatasetSource(dataset_source)
+        except ValueError:
+            raise ValueError(
+                f"Dataset source '{dataset_source}' not available. "
+                f"Possible dataset sources: '{[ds.value for ds in DatasetSource]}'"
+            )
+
+        try:
+            feature_type = FeatureType(feature_type)
+        except ValueError:
+            raise ValueError(
+                f"Feature type '{feature_type}' not available. "
+                f"Possible feature types: '{[ft.value for ft in FeatureType]}'"
+            )
 
         pdf = self.load_raw_dataset(dataset_source=dataset_source)
 
         processed_path = self.__get_processed_dataset_path(dataset_source=dataset_source, feature_type=feature_type)
         self._logger.info(f"Processed dataset path: '{processed_path}'")
 
-        # by default we use the ECFP dataset creation strategy
-        # if a different `feature_type` that is not 'ecfp' is injected
-        # a different creation strategy is used
-        dataset_creator: DatasetCreationStrategy = ECFPDatasetCreator()
-        if feature_type == dgl_feature_type:
-            dataset_creator = DGLDatasetCreator()
-        if feature_type == dgl_with_bonds_feature_type:
-            dataset_creator = DGLBondsDatasetCreator()
+        dataset_creator: DatasetCreationStrategy = _STRATEGIES[feature_type]()
 
         if not processed_path.exists() or force_refresh:
             self._logger.info(f"Creating dataset for '{dataset_source}' source, '{feature_type}' feature type and saving to '{processed_path}' location...")
@@ -66,16 +108,29 @@ class DatasetHandler:
         else:
             self._logger.info(f"Dataset already exists at '{processed_path}', skipping creation")
 
-    def __get_raw_dataset_path(self, dataset_source: str) -> Path:
+    def __get_raw_dataset_path(self, dataset_source: DatasetSource) -> Path:
         """
-        todo
-        """
-        self._logger.info(f"Generating (raw) path for '{dataset_source}' dataset")
-        return Path(DATA_RAW_DIR + f"/{dataset_source}.csv")
+        Resolves the filesystem path to a raw dataset CSV file.
 
-    def __get_processed_dataset_path(self, dataset_source: str, feature_type: str) -> Path:
+        Args:
+            dataset_source (DatasetSource): The dataset source.
+
+        Returns:
+            Path: Path to the raw dataset CSV file.
         """
-        todo
+        self._logger.info(f"Generating (raw) path for '{dataset_source.value}' dataset")
+        return Path(DATA_RAW_DIR + f"/{dataset_source.value}.csv")
+
+    def __get_processed_dataset_path(self, dataset_source: DatasetSource, feature_type: FeatureType) -> Path:
         """
-        self._logger.info(f"Generating (processed) path for '{dataset_source}' dataset '{feature_type}' feature type")
-        return Path(DATA_PROCESSED_DIR + f"/{dataset_source}/{feature_type}.pkl")
+        Resolves the filesystem path to a processed dataset pickle file.
+
+        Args:
+            dataset_source (DatasetSource): The dataset source.
+            feature_type (FeatureType): Feature representation of the processed dataset.
+
+        Returns:
+            Path: Path to the processed dataset pickle file.
+        """
+        self._logger.info(f"Generating (processed) path for '{dataset_source.value}' dataset '{feature_type.value}' feature type")
+        return Path(DATA_PROCESSED_DIR + f"/{dataset_source.value}/{feature_type.value}.pkl")

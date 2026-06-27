@@ -1,5 +1,6 @@
 import logging
 
+from datasets.enums import FeatureType, DatasetSource
 from datasets.dataset_handler import DatasetHandler
 
 logging.basicConfig(
@@ -8,4 +9,4 @@ logging.basicConfig(
 )
 
 handler = DatasetHandler()
-df = handler.create_dataset(dataset_source="muv", feature_type="ecfp", force_refresh=True)
+df = handler.create_dataset(dataset_source=DatasetSource.MUV, feature_type=FeatureType.ECFP, force_refresh=False)
