@@ -1,3 +1,4 @@
+import logging
 from typing import override
 
 import pandas as pd
@@ -18,9 +19,9 @@ class ECFPDatasetCreator(DatasetCreationStrategy):
     """
     def __init__(self) -> None:
         """
-        Initialises the ECFPDatasetCreator by calling the parent class constructor.
+        Initialises the ECFPDatasetCreator class.
         """
-        super().__init__()
+        self._logger = logging.getLogger(__name__)
 
     @override
     def create(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -43,7 +44,7 @@ class ECFPDatasetCreator(DatasetCreationStrategy):
         self._logger.info("Initialising Morgan fingerprint generator for feature extraction")
         generator = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
 
-        self._logger.info("Featurising SMILES strings into ECFP fingerprints. Please wait this process might take a while.")
+        self._logger.info("Featurising SMILES strings into ECFP fingerprints. Please wait this process might take a while")
         df['mol'] = df['smiles'].apply(
             lambda x: np.float32(generator.GetFingerprintAsNumPy(Chem.MolFromSmiles(x)))
         )
