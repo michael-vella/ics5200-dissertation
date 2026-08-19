@@ -8,7 +8,7 @@ from rdkit import Chem
 from dgllife import utils
 from chembl_structure_pipeline import standardizer
 
-from datasets.creation_strategies.base_strategy import DatasetCreationStrategy
+from .base_strategy import DatasetCreationStrategy
 
 
 class DGLDatasetCreator(DatasetCreationStrategy):

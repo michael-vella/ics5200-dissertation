@@ -53,6 +53,27 @@ class DatasetHandler:
 
         return pdf
 
+    def load_processed_dataset(self, dataset_source: DatasetSource, feature_type: FeatureType) -> pd.DataFrame:
+            """
+            Loads a processed dataset from a PKL file into a pandas DataFrame.
+    
+            Args:
+                dataset_source (DatasetSource): The dataset source, used to resolve
+                    the pro CSV file path.
+                feature_type (FeatureType): Feature representation to generate.
+                    Accepts a FeatureType member.
+    
+            Returns:
+                pd.DataFrame: The raw dataset loaded from the PKL file.
+            """
+            processed_path = self.__get_processed_dataset_path(dataset_source=dataset_source, feature_type=feature_type)
+            self._logger.info(f"Raw dataset path: '{processed_path}'")
+    
+            self._logger.info("Loading dataset into a pandas DataFrame")
+            pdf: pd.DataFrame = pd.read_pickle(processed_path)
+    
+            return pdf
+
     def create_dataset(self, dataset_source: DatasetSource, feature_type: FeatureType, force_refresh: bool) -> None:
         """
         Creates a processed dataset for a given source and feature type.

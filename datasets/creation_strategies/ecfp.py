@@ -6,7 +6,7 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem import rdFingerprintGenerator
 
-from datasets.creation_strategies.base_strategy import DatasetCreationStrategy
+from .base_strategy import DatasetCreationStrategy
 
 
 class ECFPDatasetCreator(DatasetCreationStrategy):
