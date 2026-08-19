@@ -26,14 +26,29 @@ class DGLBondsDatasetCreator(DGLDatasetCreator):
     """
     def __init__(self) -> None:
         """
-        Initialises the DGLDatasetCreator class.
+        Initialises the DGLBondsDatasetCreator class.
         """
         self._logger = logging.getLogger(__name__)
 
     @override
     def create(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """
-        todo
+        Creates a DGL graph dataset from a DataFrame containing SMILES strings.
+
+        Each SMILES string is standardised using the ChEMBL structure pipeline
+        and then converted into a bidirectional DGL graph (bigraph) carrying both
+        atom-level node features and bond-level edge features. Self-loops are added
+        to every node. The resulting graph is stored as a new 'mol' column in the
+        DataFrame.
+
+        Args:
+            df (pd.DataFrame): Input DataFrame containing a 'smiles' column with
+                               SMILES strings representing molecular structures.
+            **kwargs: Additional keyword arguments required by the base class interface.
+
+        Returns:
+            pd.DataFrame: The input DataFrame with an additional 'mol' column
+                          containing the DGL graph for each molecule.
         """
         self._logger.info("Featurising SMILES strings into DGL graphs with bonds. Please wait, this process might take a while")
         df['mol'] = df['smiles'].apply(self._create_features)
@@ -44,7 +59,20 @@ class DGLBondsDatasetCreator(DGLDatasetCreator):
     @override
     def _create_features(self, smiles: str) -> dgl.DGLGraph:
         """
-        todo
+        Converts a SMILES string into a DGL bidirectional graph with atom and bond features.
+
+        The molecule is first standardised via the ChEMBL structure pipeline to
+        ensure consistent representations, then converted to a bigraph in which each
+        bond yields a pair of directed edges. Self-loops are appended so that each
+        atom attends to itself during message passing.
+
+        Args:
+            smiles (str): A SMILES string representing a molecular structure.
+
+        Returns:
+            dgl.DGLGraph: A DGL graph with node feature key ``'feats'`` containing
+                          concatenated one-hot atom descriptors, and edge feature key
+                          ``'edge_feats'`` containing concatenated one-hot bond descriptors.
         """
         mol = Chem.MolFromSmiles(smiles)
         mol = standardizer.standardize_mol(mol)
@@ -60,10 +88,28 @@ class DGLBondsDatasetCreator(DGLDatasetCreator):
 
     def _featurise_bonds(self, mol) -> dict:
         """
-        todo
+        Computes concatenated one-hot bond features for all bonds in a molecule.
+
+        The following per-bond properties are encoded as one-hot vectors and
+        concatenated into a single feature vector:
+          - Bond type (single, double, triple, aromatic)
+          - Conjugation flag
+          - Ring membership flag
+          - Stereochemistry configuration
+          - Bond direction
+
+        Each bond is featurised twice, once for each of the two directed edges that
+        represent it in the bidirectional graph.
+
+        Args:
+            mol: An RDKit ``Mol`` object whose bonds are to be featurised.
+
+        Returns:
+            dict: A dictionary with key ``'edge_feats'`` mapping to a float32 tensor
+                  of shape ``(2 * num_bonds, feature_dim)``.
         """
         feats = []
-  
+
         bond_features = utils.ConcatFeaturizer([
             utils.bond_type_one_hot,
             utils.bond_is_conjugated_one_hot,
