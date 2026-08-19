@@ -4,7 +4,6 @@ from typing import override
 import dgl
 import torch
 import pandas as pd
-from rdkit import Chem
 from dgllife import utils
 from chembl_structure_pipeline import standardizer
 
@@ -48,16 +47,18 @@ class DGLBondsDatasetCreator(DGLDatasetCreator):
 
         Returns:
             pd.DataFrame: The input DataFrame with an additional 'mol' column
-                          containing the DGL graph for each molecule.
+                          containing the DGL graph for each molecule. Molecules whose
+                          SMILES string could not be parsed are dropped.
         """
         self._logger.info("Featurising SMILES strings into DGL graphs with bonds. Please wait, this process might take a while")
         df['mol'] = df['smiles'].apply(self._create_features)
+        df = self._drop_unfeaturised(df)
 
         self._logger.info(f"Featurisation complete. '{len(df)}' molecules processed")
         return df
 
     @override
-    def _create_features(self, smiles: str) -> dgl.DGLGraph:
+    def _create_features(self, smiles: str) -> dgl.DGLGraph | None:
         """
         Converts a SMILES string into a DGL bidirectional graph with atom and bond features.
 
@@ -70,11 +71,15 @@ class DGLBondsDatasetCreator(DGLDatasetCreator):
             smiles (str): A SMILES string representing a molecular structure.
 
         Returns:
-            dgl.DGLGraph: A DGL graph with node feature key ``'feats'`` containing
+            dgl.DGLGraph | None: A DGL graph with node feature key ``'feats'`` containing
                           concatenated one-hot atom descriptors, and edge feature key
                           ``'edge_feats'`` containing concatenated one-hot bond descriptors.
+                          Returns None if the SMILES string could not be parsed.
         """
-        mol = Chem.MolFromSmiles(smiles)
+        mol = self._parse_smiles(smiles)
+        if mol is None:
+            return None
+
         mol = standardizer.standardize_mol(mol)
 
         dgl_graph = utils.mol_to_bigraph(

@@ -13,6 +13,6 @@ df = handler.create_dataset(dataset_source=DatasetSource.MUV, feature_type=Featu
 df = handler.create_dataset(dataset_source=DatasetSource.MUV, feature_type=FeatureType.DGL, force_refresh=False)
 df = handler.create_dataset(dataset_source=DatasetSource.MUV, feature_type=FeatureType.DGL_WITH_BONDS, force_refresh=False)
 
-# df = handler.create_dataset(dataset_source=DatasetSource.TOX21, feature_type=FeatureType.ECFP, force_refresh=False)
-# df = handler.create_dataset(dataset_source=DatasetSource.TOX21, feature_type=FeatureType.DGL, force_refresh=False)
-# df = handler.create_dataset(dataset_source=DatasetSource.TOX21, feature_type=FeatureType.DGL_WITH_BONDS, force_refresh=False)
+df = handler.create_dataset(dataset_source=DatasetSource.TOX21, feature_type=FeatureType.ECFP, force_refresh=False)
+df = handler.create_dataset(dataset_source=DatasetSource.TOX21, feature_type=FeatureType.DGL, force_refresh=False)
+df = handler.create_dataset(dataset_source=DatasetSource.TOX21, feature_type=FeatureType.DGL_WITH_BONDS, force_refresh=False)

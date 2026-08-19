@@ -4,7 +4,6 @@ from typing import override
 import dgl
 import torch
 import pandas as pd
-from rdkit import Chem
 from dgllife import utils
 from chembl_structure_pipeline import standardizer
 
@@ -45,15 +44,17 @@ class DGLDatasetCreator(DatasetCreationStrategy):
 
         Returns:
             pd.DataFrame: The input DataFrame with an additional 'mol' column
-                          containing the DGL graph for each molecule.
+                          containing the DGL graph for each molecule. Molecules whose
+                          SMILES string could not be parsed are dropped.
         """
         self._logger.info("Featurising SMILES strings into DGL graphs. Please wait, this process might take a while")
         df['mol'] = df['smiles'].apply(self._create_features)
+        df = self._drop_unfeaturised(df)
 
         self._logger.info(f"Featurisation complete. '{len(df)}' molecules processed")
         return df
 
-    def _create_features(self, smiles: str) -> dgl.DGLGraph:
+    def _create_features(self, smiles: str) -> dgl.DGLGraph | None:
         """
         Converts a SMILES string into a DGL bidirectional graph with atom features.
 
@@ -65,10 +66,14 @@ class DGLDatasetCreator(DatasetCreationStrategy):
             smiles (str): A SMILES string representing a molecular structure.
 
         Returns:
-            dgl.DGLGraph: A DGL graph with node feature key ``'feats'`` containing
-                          concatenated one-hot atom descriptors.
+            dgl.DGLGraph | None: A DGL graph with node feature key ``'feats'`` containing
+                          concatenated one-hot atom descriptors, or None if the
+                          SMILES string could not be parsed.
         """
-        mol = Chem.MolFromSmiles(smiles)
+        mol = self._parse_smiles(smiles)
+        if mol is None:
+            return None
+
         mol = standardizer.standardize_mol(mol)
 
         dgl_graph = utils.mol_to_bigraph(
