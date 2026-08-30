@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 from rdkit import Chem
+from rdkit.Chem.MolStandardize import rdMolStandardize
 
 
 class DatasetCreationStrategy(ABC):
@@ -28,25 +29,45 @@ class DatasetCreationStrategy(ABC):
 
     def _parse_smiles(self, smiles: str) -> Chem.Mol | None:
         """
-        Parses a SMILES string into an RDKit molecule.
+        Parses a SMILES string into a standardized RDKit molecule.
 
         RDKit rejects a small number of SMILES strings that violate its valence
         rules (for example hypervalent aluminium centres in TOX21), returning
         None rather than raising. Such molecules are logged and reported back as
         None so that the calling strategy can skip them instead of failing.
 
+        Molecules that do parse are then standardized so that molecules from
+        different sources are represented in a single, consistent way (for use
+        in ML, catalogue, etc.): Hs are removed, metal atoms disconnected, the
+        molecule normalized and reionized, the parent fragment extracted (in
+        case of multiple fragments), the molecule neutralized where possible,
+        and a canonical tautomer chosen. No attempt is made at reionization at
+        this step, nor at ionization at some pH (RDKit has no pKa calculator).
+
         Args:
             smiles (str): A SMILES string representing a molecular structure.
 
         Returns:
-            Chem.Mol | None: The parsed molecule, or None if the SMILES string
-                could not be parsed.
+            Chem.Mol | None: The standardized molecule, or None if the SMILES
+                string could not be parsed.
         """
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             self._logger.warning(f"Unable to parse SMILES string '{smiles}', molecule will be dropped")
+            return None
 
-        return mol
+        # removeHs, disconnect metal atoms, normalize the molecule, reionize the molecule
+        clean_mol = rdMolStandardize.Cleanup(mol)
+
+        # if many fragments, get the "parent" (the actual mol we are interested in)
+        parent_clean_mol = rdMolStandardize.FragmentParent(clean_mol)
+
+        # try to neutralize molecule
+        uncharger = rdMolStandardize.Uncharger() # annoying, but necessary as no convenience method exists
+        uncharged_parent_clean_mol = uncharger.uncharge(parent_clean_mol)
+
+        te = rdMolStandardize.TautomerEnumerator() # idem
+        return te.Canonicalize(uncharged_parent_clean_mol)
 
     def _drop_unfeaturised(self, df: pd.DataFrame) -> pd.DataFrame:
         """
