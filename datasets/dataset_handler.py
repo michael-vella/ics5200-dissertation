@@ -86,7 +86,23 @@ class DatasetHandler:
 
     def load_train_test_set(self, dataset_source: DatasetSource, feature_type: FeatureType) -> TrainTestData:
         """
-        todo
+        Loads a processed dataset and splits it into per-assay train and test sets.
+
+        A fixed set of assays is held out as the test set for each dataset
+        source, with the remaining assays (excluding identifier and structure
+        columns) used for training. The appropriate train test strategy for the
+        requested feature type is then used to build a per-assay DataFrame
+        (target and features, with missing values dropped) for each split.
+
+        Args:
+            dataset_source (DatasetSource): The dataset source, used to resolve
+                the processed dataset path and its held-out test assays.
+            feature_type (FeatureType): Feature representation of the processed
+                dataset. Accepts a FeatureType member.
+
+        Returns:
+            TrainTestData: A tuple of (train assays dict, test assays dict),
+                each mapping an assay name to a DataFrame with 'y' and 'mol' columns.
         """
         test_assays_map = {
             DatasetSource.TOX21: ["SR-HSE", "SR-MMP", "SR-p53"],

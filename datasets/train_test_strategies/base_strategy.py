@@ -12,7 +12,10 @@ type TrainTestData = tuple[
 
 class TrainTestStrategy(ABC):
     """
-    todo
+    Abstract base class for all train-test set retrieval strategies.
+
+    Each concrete strategy encapsulates how a processed dataset is split into
+    per-assay train and test sets for a specific feature type.
     """
     _logger: logging.Logger
 
@@ -24,6 +27,16 @@ class TrainTestStrategy(ABC):
         test_assays: list[str]
     ) -> TrainTestData:
         """
-        todo
+        Splits a processed dataset into per-assay train and test sets.
+
+        Args:
+            pdf (pd.DataFrame): Processed dataset containing a 'mol' column of
+                features and one column per assay.
+            train_assays (list[str]): Names of the assay columns to use for training.
+            test_assays (list[str]): Names of the assay columns to use for testing.
+
+        Returns:
+            TrainTestData: A tuple of (train assays dict, test assays dict),
+                each mapping an assay name to a DataFrame with 'y' and 'mol' columns.
         """
         pass

@@ -8,11 +8,12 @@ from .base_strategy import TrainTestStrategy, TrainTestData
 
 class DGLBondsTrainTestStrategy(TrainTestStrategy):
     """
-    todo
+    Class implementing the train-test set retrieval strategy for the DGL with
+    bonds feature type.
     """
     def __init__(self) -> None:
         """
-        todo
+        Initialises the DGLBondsTrainTestStrategy class.
         """
         self._logger = logging.getLogger(__name__)
 
@@ -24,7 +25,17 @@ class DGLBondsTrainTestStrategy(TrainTestStrategy):
         test_assays: list[str]
     ) -> TrainTestData:
         """
-        todo
+        Splits a DGL (Bonds) processed dataset into per-assay train and test sets.
+
+        Args:
+            pdf (pd.DataFrame): Processed dataset containing a 'mol' column of
+                DGL graph objects (with bond/edge features) and one column per assay.
+            train_assays (list[str]): Names of the assay columns to use for training.
+            test_assays (list[str]): Names of the assay columns to use for testing.
+
+        Returns:
+            TrainTestData: A tuple of (train assays dict, test assays dict),
+                each mapping an assay name to a DataFrame with 'y' and 'mol' columns.
         """
         self._logger.info("Retrieving train-test sets for the DGL (Bonds) feature type")
 
@@ -42,7 +53,22 @@ class DGLBondsTrainTestStrategy(TrainTestStrategy):
         assays: list[str]
     ) -> dict[str, pd.DataFrame]:
         """
-        todo
+        Builds a per-assay DataFrame of target and DGL (Bonds) graph pairs.
+
+        For each assay, selects the assay's target column together with the
+        'mol' feature column, drops rows with missing values, and renames the
+        columns to 'y' (target) and 'mol' (DGL graph). Molecules whose graph
+        has fewer than 17 edge features (i.e. lacking the expected bond
+        features) are dropped, since they cannot be used with this feature type.
+
+        Args:
+            pdf (pd.DataFrame): Processed dataset containing a 'mol' column of
+                DGL graph objects (with bond/edge features) and one column per assay.
+            assays (list[str]): Names of the assay columns to build DataFrames for.
+
+        Returns:
+            dict[str, pd.DataFrame]: Mapping of assay name to a DataFrame with
+                'y' and 'mol' columns.
         """
         assays_dict = dict.fromkeys(assays)
         for assay in assays:

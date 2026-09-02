@@ -9,11 +9,15 @@ from .ecfp import ECFPTrainTestStrategy
 
 class DGLTrainTestStrategy(ECFPTrainTestStrategy):
     """
-    todo
+    Class implementing the train-test set retrieval strategy for the DGL feature type.
+
+    Reuses the assay dict building logic from ECFPTrainTestStrategy, since both
+    feature types share the same 'mol' column structure (target plus a single
+    feature object per row) and differ only in what that object represents.
     """
     def __init__(self) -> None:
         """
-        todo
+        Initialises the DGLTrainTestStrategy class.
         """
         self._logger = logging.getLogger(__name__)
 
@@ -25,7 +29,17 @@ class DGLTrainTestStrategy(ECFPTrainTestStrategy):
         test_assays: list[str]
     ) -> TrainTestData:
         """
-        todo
+        Splits a DGL processed dataset into per-assay train and test sets.
+
+        Args:
+            pdf (pd.DataFrame): Processed dataset containing a 'mol' column of
+                DGL graph objects and one column per assay.
+            train_assays (list[str]): Names of the assay columns to use for training.
+            test_assays (list[str]): Names of the assay columns to use for testing.
+
+        Returns:
+            TrainTestData: A tuple of (train assays dict, test assays dict),
+                each mapping an assay name to a DataFrame with 'y' and 'mol' columns.
         """
         self._logger.info("Retrieving train-test sets for the DGL feature type")
 
