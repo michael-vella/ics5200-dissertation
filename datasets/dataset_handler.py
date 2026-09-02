@@ -99,8 +99,8 @@ class DatasetHandler:
         self._logger.info(f"Test assays for the '{dataset_source.value}' dataset source: {test_assays}")
 
         non_train_assays = test_assays.copy()
-        non_train_assays = test_assays.extend(["mol_id", "smiles", "mol"])
-        train_assays = [x for x in list (pdf.columns) if x not in non_train_assays]
+        non_train_assays.extend(["mol_id", "smiles", "mol"])
+        train_assays = [x for x in list(pdf.columns) if x not in non_train_assays]
         self._logger.info(f"Train assays for the '{dataset_source.value}' dataset source: {train_assays}")
 
         train_test_creator = _TRAIN_TEST_STRATEGIES[feature_type]()
