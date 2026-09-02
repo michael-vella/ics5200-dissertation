@@ -9,13 +9,23 @@ from datasets.creation_strategies.base_strategy import DatasetCreationStrategy
 from datasets.creation_strategies.ecfp import ECFPDatasetCreator
 from datasets.creation_strategies.dgl import DGLDatasetCreator
 from datasets.creation_strategies.dgl_with_bonds import DGLBondsDatasetCreator
-
+from datasets.train_test_strategies.base_strategy import TrainTestStrategy, TrainTestData
+from datasets.train_test_strategies.ecfp import ECFPTrainTestStrategy
+from datasets.train_test_strategies.dgl import DGLTrainTestStrategy
+from datasets.train_test_strategies.dgl_with_bonds import DGLBondsTrainTestStrategy
 
 # maps each feature type to the dataset creation strategy responsible for it
-_STRATEGIES: dict[FeatureType, type[DatasetCreationStrategy]] = {
+_DATASET_CREATION_STRATEGIES: dict[FeatureType, type[DatasetCreationStrategy]] = {
     FeatureType.ECFP: ECFPDatasetCreator,
     FeatureType.DGL: DGLDatasetCreator,
     FeatureType.DGL_WITH_BONDS: DGLBondsDatasetCreator,
+}
+
+# maps each feature type to the train test retrieval method
+_TRAIN_TEST_STRATEGIES: dict[FeatureType, type[TrainTestStrategy]] = {
+    FeatureType.ECFP: ECFPTrainTestStrategy,
+    FeatureType.DGL: DGLTrainTestStrategy,
+    FeatureType.DGL_WITH_BONDS: DGLBondsTrainTestStrategy,
 }
 
 
@@ -64,15 +74,58 @@ class DatasetHandler:
                     Accepts a FeatureType member.
     
             Returns:
-                pd.DataFrame: The raw dataset loaded from the PKL file.
+                pd.DataFrame: The processed dataset loaded from the PKL file.
             """
             processed_path = self.__get_processed_dataset_path(dataset_source=dataset_source, feature_type=feature_type)
-            self._logger.info(f"Raw dataset path: '{processed_path}'")
+            self._logger.info(f"Processed dataset path: '{processed_path}'")
     
             self._logger.info("Loading dataset into a pandas DataFrame")
             pdf: pd.DataFrame = pd.read_pickle(processed_path)
     
             return pdf
+
+    def load_train_test_set(self, dataset_source: DatasetSource, feature_type: FeatureType) -> TrainTestData:
+        """
+        Loads a processed dataset and splits it into per-assay train and test sets.
+
+        A fixed set of assays is held out as the test set for each dataset
+        source, with the remaining assays (excluding identifier and structure
+        columns) used for training. The appropriate train test strategy for the
+        requested feature type is then used to build a per-assay DataFrame
+        (target and features, with missing values dropped) for each split.
+
+        Args:
+            dataset_source (DatasetSource): The dataset source, used to resolve
+                the processed dataset path and its held-out test assays.
+            feature_type (FeatureType): Feature representation of the processed
+                dataset. Accepts a FeatureType member.
+
+        Returns:
+            TrainTestData: A tuple of (train assays dict, test assays dict),
+                each mapping an assay name to a DataFrame with 'y' and 'mol' columns.
+        """
+        test_assays_map = {
+            DatasetSource.TOX21: ["SR-HSE", "SR-MMP", "SR-p53"],
+            DatasetSource.MUV: ["MUV-832", "MUV-846", "MUV-852", "MUV-858", "MUV-859"],
+        }
+
+        pdf = self.load_processed_dataset(dataset_source=dataset_source, feature_type=feature_type)
+
+        test_assays = test_assays_map.get(dataset_source)
+        self._logger.info(f"Test assays for the '{dataset_source.value}' dataset source: {test_assays}")
+
+        non_train_assays = test_assays.copy()
+        non_train_assays.extend(["mol_id", "smiles", "mol"])
+        train_assays = [x for x in list(pdf.columns) if x not in non_train_assays]
+        self._logger.info(f"Train assays for the '{dataset_source.value}' dataset source: {train_assays}")
+
+        train_test_creator = _TRAIN_TEST_STRATEGIES[feature_type]()
+
+        return train_test_creator.get_train_test(
+            pdf=pdf,
+            train_assays=train_assays,
+            test_assays=test_assays
+        )
 
     def create_dataset(self, dataset_source: DatasetSource, feature_type: FeatureType, force_refresh: bool) -> None:
         """
@@ -116,7 +169,7 @@ class DatasetHandler:
         processed_path = self.__get_processed_dataset_path(dataset_source=dataset_source, feature_type=feature_type)
         self._logger.info(f"Processed dataset path: '{processed_path}'")
 
-        dataset_creator: DatasetCreationStrategy = _STRATEGIES[feature_type]()
+        dataset_creator: DatasetCreationStrategy = _DATASET_CREATION_STRATEGIES[feature_type]()
 
         if not processed_path.exists() or force_refresh:
             self._logger.info(f"Creating dataset for '{dataset_source}' source, '{feature_type}' feature type and saving to '{processed_path}' location...")
