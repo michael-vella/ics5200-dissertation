@@ -10,3 +10,5 @@ torch
 dgl
 dgllife
 chembl-structure-pipeline
+gputil
+humanize
