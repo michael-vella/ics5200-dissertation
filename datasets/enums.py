@@ -16,3 +16,4 @@ class DatasetSource(StrEnum):
     """
     TOX21 = "tox21"
     MUV = "muv"
+    DUDE_GPCR = "dude_gpcr"
