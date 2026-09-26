@@ -12,3 +12,4 @@ dgllife
 chembl-structure-pipeline
 gputil
 humanize
+matplotlib
