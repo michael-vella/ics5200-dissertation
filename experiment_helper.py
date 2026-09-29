@@ -77,18 +77,18 @@ class ExperimentHelper:
             name (str): Name of the experiment/model (e.g. 'random_forest'),
                 used as both the experiment id prefix and the logger name.
             base_dir (Path): Directory under which the experiment's output
-                directory is created (e.g. 'experiments/experiment_log').
+                directory is created (e.g. 'experiments/entries').
 
         Returns:
             tuple[str, Path, logging.Logger]: The experiment id, its output
-                directory, and a logger writing to '{experiment_dir}/{name}.log'.
+                directory, and a logger writing to '{experiment_dir}/experiment.log'.
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         experiment_id = f"{name}_{timestamp}"
         experiment_dir = Path(base_dir) / experiment_id
         experiment_dir.mkdir(parents=True, exist_ok=True)
 
-        logger = ExperimentHelper.setup_logging(name, experiment_dir / f"{name}.log")
+        logger = ExperimentHelper.setup_logging(name, experiment_dir / "experiment.log")
         logger.info(f"Started experiment '{experiment_id}'")
 
         return experiment_id, experiment_dir, logger
