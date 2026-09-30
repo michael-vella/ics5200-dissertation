@@ -1,7 +1,7 @@
 import logging
 import random
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 
@@ -89,7 +89,7 @@ class ExperimentHelper:
         experiment_dir.mkdir(parents=True, exist_ok=True)
 
         logger = ExperimentHelper.setup_logging(name, experiment_dir / "experiment.log")
-        logger.info(f"Started experiment '{experiment_id}'")
+        logger.info(f"Started experiment '{experiment_id}'. Experiment start time: '{datetime.now(timezone.utc)}'")
 
         return experiment_id, experiment_dir, logger
 
