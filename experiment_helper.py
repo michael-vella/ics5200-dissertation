@@ -1,15 +1,19 @@
+import csv
 import logging
 import random
 import subprocess
 from datetime import datetime, timezone
-from enum import Enum
 from pathlib import Path
+from typing import TypeVar
 
 import GPUtil as GPU
 import humanize
+import matplotlib.pyplot as plt
 import numpy as np
 import psutil
 import torch
+
+TD = TypeVar("TD", bound=dict)
 
 
 class ExperimentHelper:
@@ -167,44 +171,66 @@ class ExperimentHelper:
         return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     @staticmethod
-    def prompt_enum_choice(logger: logging.Logger, enum_cls: type[Enum], label: str, supported: list | None = None):
+    def save_typed_dict_to_csv(save_path: Path, dict_type: type[TD], value_list: list[TD]) -> None:
         """
-        Prompts the user to select a member of an enum by index or name, logging
-        the available options and the final selection.
+        Writes a list of TypedDict records to a CSV file, using the TypedDict's
+        fields (in declaration order) as the CSV columns.
 
         Args:
-            logger (logging.Logger): Logger used to announce options and the selection.
-            enum_cls (type[Enum]): The enum class to choose a member from. Must
-                have string `.value`s.
-            label (str): Human-readable name for what is being selected (e.g.
-                'dataset source'), used in prompts and log messages.
-            supported (list | None): If given, restricts valid choices to this
-                subset of members; other members are listed but rejected.
-
-        Returns:
-            Enum: The selected enum member.
-
-        Raises:
-            ValueError: If the selection is not a valid member of `enum_cls`,
-                or is not in `supported` when given.
+            save_path (Path): Path of the CSV file to write (overwritten if it exists).
+            dict_type (type[TD]): The TypedDict class describing `value_list`'s
+                records; its field names become the CSV header/columns.
+            value_list (list[TD]): The records to write, one per row.
         """
-        options = list(enum_cls)
-        logger.info(f"Available {label}s:")
-        for i, option in enumerate(options):
-            note = "" if supported is None or option in supported else " (not supported)"
-            logger.info(f"  {i}: {option.value}{note}")
+        with open(save_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=dict_type.__annotations__.keys())
+            writer.writeheader()
+            writer.writerows(value_list)
 
-        selection = input(f"Select {label} (name or index): ").strip()
-        if selection.isdigit():
-            choice = options[int(selection)]
-        else:
-            choice = enum_cls(selection.lower())
 
-        if supported is not None and choice not in supported:
-            raise ValueError(
-                f"{label.capitalize()} '{choice.value}' is not supported here. "
-                f"Supported {label}s: {[o.value for o in supported]}"
-            )
+    @staticmethod
+    def save_roc_plot(plots_dir: Path, run_name: str, round_idx: int, fpr, tpr, roc: float) -> None:
+        """
+        Plots and saves an ROC curve to '{plots_dir}/{run_name}_round{round_idx}_roc.png'.
 
-        logger.info(f"Selected {label}: '{choice.value}'")
-        return choice
+        Args:
+            plots_dir (Path): Directory to save the plot in. Created if missing.
+            run_name (str): Name of the run, used in the plot title and filename.
+            round_idx (int): Index of the round, used in the plot title and filename.
+            fpr: False positive rates, as returned by sklearn's roc_curve.
+            tpr: True positive rates, as returned by sklearn's roc_curve.
+            roc (float): ROC AUC score, shown in the plot title.
+        """
+        plots_dir.mkdir(parents=True, exist_ok=True)
+
+        fig, ax = plt.subplots()
+        ax.plot(fpr, tpr, color="tab:blue")
+        ax.plot([0, 1], [0, 1], linestyle="--", color="grey")
+        ax.set_xlabel("False Positive Rate")
+        ax.set_ylabel("True Positive Rate")
+        ax.set_title(f"ROC Curve - {run_name} - Round {round_idx} (AUC = {roc:.3f})")
+        fig.savefig(plots_dir / f"{run_name}_round{round_idx}_roc.png")
+        plt.close(fig)
+
+    @staticmethod
+    def save_prc_plot(plots_dir: Path, run_name: str, round_idx: int, precision, recall, prc: float) -> None:
+        """
+        Plots and saves a precision-recall curve to '{plots_dir}/{run_name}_round{round_idx}_prc.png'.
+
+        Args:
+            plots_dir (Path): Directory to save the plot in. Created if missing.
+            run_name (str): Name of the run, used in the plot title and filename.
+            round_idx (int): Index of the round, used in the plot title and filename.
+            precision: Precision values, as returned by sklearn's precision_recall_curve.
+            recall: Recall values, as returned by sklearn's precision_recall_curve.
+            prc (float): Average precision score, shown in the plot title.
+        """
+        plots_dir.mkdir(parents=True, exist_ok=True)
+
+        fig, ax = plt.subplots()
+        ax.plot(recall, precision, color="tab:orange")
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+        ax.set_title(f"PRC Curve - {run_name} - Round {round_idx} (AP = {prc:.3f})")
+        fig.savefig(plots_dir / f"{run_name}_round{round_idx}_prc.png")
+        plt.close(fig)
