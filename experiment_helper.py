@@ -88,7 +88,7 @@ class ExperimentHelper:
                 directory, and a logger writing to '{experiment_dir}/experiment.log'.
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        experiment_id = f"{name}_{timestamp}"
+        experiment_id = f"{name}/{timestamp}"
         experiment_dir = Path(base_dir) / experiment_id
         experiment_dir.mkdir(parents=True, exist_ok=True)
 
@@ -189,48 +189,54 @@ class ExperimentHelper:
 
 
     @staticmethod
-    def save_roc_plot(plots_dir: Path, run_name: str, round_idx: int, fpr, tpr, roc: float) -> None:
+    def save_roc_plot(
+        plot_save_path: Path,
+        plot_title: str,
+        false_positive_rate,
+        true_positive_rate
+    ) -> None:
         """
-        Plots and saves an ROC curve to '{plots_dir}/{run_name}_round{round_idx}_roc.png'.
+        Plots and saves an ROC curve to 'plot_save_path'.
 
         Args:
-            plots_dir (Path): Directory to save the plot in. Created if missing.
-            run_name (str): Name of the run, used in the plot title and filename.
-            round_idx (int): Index of the round, used in the plot title and filename.
-            fpr: False positive rates, as returned by sklearn's roc_curve.
-            tpr: True positive rates, as returned by sklearn's roc_curve.
-            roc (float): ROC AUC score, shown in the plot title.
+            plot_save_path (Path): File path to save the plot to. Parent directories are created if missing.
+            plot_title (str): Title shown on the plot.
+            false_positive_rate: False positive rates, as returned by sklearn's roc_curve.
+            true_positive_rate: True positive rates, as returned by sklearn's roc_curve.
         """
-        plots_dir.mkdir(parents=True, exist_ok=True)
+        plot_save_path.parent.mkdir(parents=True, exist_ok=True)
 
         fig, ax = plt.subplots()
-        ax.plot(fpr, tpr, color="tab:blue")
+        ax.plot(false_positive_rate, true_positive_rate, color="tab:blue")
         ax.plot([0, 1], [0, 1], linestyle="--", color="grey")
         ax.set_xlabel("False Positive Rate")
         ax.set_ylabel("True Positive Rate")
-        ax.set_title(f"ROC Curve - {run_name} - Round {round_idx} (AUC = {roc:.3f})")
-        fig.savefig(plots_dir / f"{run_name}_round{round_idx}_roc.png")
+        ax.set_title(plot_title)
+        fig.savefig(plot_save_path)
         plt.close(fig)
 
     @staticmethod
-    def save_prc_plot(plots_dir: Path, run_name: str, round_idx: int, precision, recall, prc: float) -> None:
+    def save_prc_plot(
+        plot_save_path: Path,
+        plot_title: str,
+        precision,
+        recall
+    ) -> None:
         """
-        Plots and saves a precision-recall curve to '{plots_dir}/{run_name}_round{round_idx}_prc.png'.
+        Plots and saves a precision-recall curve to 'plot_save_path'.
 
         Args:
-            plots_dir (Path): Directory to save the plot in. Created if missing.
-            run_name (str): Name of the run, used in the plot title and filename.
-            round_idx (int): Index of the round, used in the plot title and filename.
+            plot_save_path (Path): File path to save the plot to. Parent directories are created if missing.
+            plot_title (str): Title shown on the plot.
             precision: Precision values, as returned by sklearn's precision_recall_curve.
             recall: Recall values, as returned by sklearn's precision_recall_curve.
-            prc (float): Average precision score, shown in the plot title.
         """
-        plots_dir.mkdir(parents=True, exist_ok=True)
+        plot_save_path.parent.mkdir(parents=True, exist_ok=True)
 
         fig, ax = plt.subplots()
         ax.plot(recall, precision, color="tab:orange")
         ax.set_xlabel("Recall")
         ax.set_ylabel("Precision")
-        ax.set_title(f"PRC Curve - {run_name} - Round {round_idx} (AP = {prc:.3f})")
-        fig.savefig(plots_dir / f"{run_name}_round{round_idx}_prc.png")
+        ax.set_title(plot_title)
+        fig.savefig(plot_save_path)
         plt.close(fig)

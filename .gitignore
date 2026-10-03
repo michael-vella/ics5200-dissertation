@@ -208,3 +208,6 @@ __marimo__/
 
 # Processed dataset
 data/processed
+
+# Experiments
+experiments/entries
