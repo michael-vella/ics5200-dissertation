@@ -138,6 +138,7 @@ celerybeat.pid
 .env
 .envrc
 .venv
+.venv*/
 env/
 venv/
 ENV/
@@ -211,3 +212,4 @@ data/processed
 
 # Experiments
 experiments/entries
+
