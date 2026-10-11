@@ -9,9 +9,7 @@ Code repository for the Master of Science in Artificial Intelligence (AI) disser
 
 ## Environment Replication
 
-Requires that Python is pre-installed on the host machine. Python version: 3.12.3.
-
-Future work: To refactor solution to work with docker.
+Requires that Python is pre-installed on the host machine. Python version: 3.12.x.
 
 1. Run `python -m venv .venv` to create the Python virtual environment. `python` here refers to the alias of the Python executable path and depends on the alias used on the host machine (full Python path can also be used). Running this command will create a Python virtual environment depending on the base Python version being used to create the environment.
 2. Activate virtual environment by running `.venv\Scripts\activate` (Windows) or `source .venv/bin/activate` (Linux).
@@ -34,6 +32,10 @@ Dataset (CSV) obtained from [DeepChem AWS bucket](https://deepchemdata.s3-us-wes
 
 TODO.
 
-## LIT-PCBA
+### LIT-PCBA
+
+TODO.
+
+## Replication of experiments
 
 TODO.
