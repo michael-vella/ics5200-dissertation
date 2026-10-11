@@ -138,6 +138,7 @@ celerybeat.pid
 .env
 .envrc
 .venv
+.venv*/
 env/
 venv/
 ENV/
@@ -208,3 +209,7 @@ __marimo__/
 
 # Processed dataset
 data/processed
+
+# Experiments
+experiments/entries
+
