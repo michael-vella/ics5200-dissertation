@@ -7,25 +7,17 @@ from constants import DATA_RAW_DIR, DATA_PROCESSED_DIR
 from datasets.enums import FeatureType, DatasetSource
 from datasets.creation_strategies.base_strategy import DatasetCreationStrategy
 from datasets.creation_strategies.ecfp import ECFPDatasetCreator
-from datasets.creation_strategies.dgl import DGLDatasetCreator
-from datasets.creation_strategies.dgl_with_bonds import DGLBondsDatasetCreator
 from datasets.train_test_strategies.base_strategy import TrainTestStrategy, TrainTestData
 from datasets.train_test_strategies.ecfp import ECFPTrainTestStrategy
-from datasets.train_test_strategies.dgl import DGLTrainTestStrategy
-from datasets.train_test_strategies.dgl_with_bonds import DGLBondsTrainTestStrategy
 
 # maps each feature type to the dataset creation strategy responsible for it
 _DATASET_CREATION_STRATEGIES: dict[FeatureType, type[DatasetCreationStrategy]] = {
     FeatureType.ECFP: ECFPDatasetCreator,
-    FeatureType.DGL: DGLDatasetCreator,
-    FeatureType.DGL_WITH_BONDS: DGLBondsDatasetCreator,
 }
 
 # maps each feature type to the train test retrieval method
 _TRAIN_TEST_STRATEGIES: dict[FeatureType, type[TrainTestStrategy]] = {
     FeatureType.ECFP: ECFPTrainTestStrategy,
-    FeatureType.DGL: DGLTrainTestStrategy,
-    FeatureType.DGL_WITH_BONDS: DGLBondsTrainTestStrategy,
 }
 
 
@@ -34,8 +26,7 @@ class DatasetHandler:
     Central interface for any dataset handling related processes.
 
     Provides a single entry point for loading raw datasets from disk and for
-    creating processed datasets using the various dataset creation strategies
-    (ECFP, DGL and DGL with bonds).
+    creating processed datasets using the various dataset creation strategies.
     """
     def __init__(self) -> None:
         """
