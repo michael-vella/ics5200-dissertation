@@ -7,12 +7,14 @@ from constants import DATA_RAW_DIR, DATA_PROCESSED_DIR
 from datasets.enums import FeatureType, DatasetSource
 from datasets.creation_strategies.base_strategy import DatasetCreationStrategy
 from datasets.creation_strategies.ecfp import ECFPDatasetCreator
+from datasets.creation_strategies.pyg_with_bonds import PyGBondsDatasetCreator
 from datasets.train_test_strategies.base_strategy import TrainTestStrategy, TrainTestData
 from datasets.train_test_strategies.ecfp import ECFPTrainTestStrategy
 
 # maps each feature type to the dataset creation strategy responsible for it
 _DATASET_CREATION_STRATEGIES: dict[FeatureType, type[DatasetCreationStrategy]] = {
     FeatureType.ECFP: ECFPDatasetCreator,
+    FeatureType.PYG_WITH_BONDS: PyGBondsDatasetCreator,
 }
 
 # maps each feature type to the train test retrieval method
