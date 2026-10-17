@@ -1,15 +1,12 @@
---extra-index-url https://download.pytorch.org/whl/cpu
---find-links https://data.dgl.ai/wheels/torch-2.4/repo.html
-
-jupyter
-pandas
-rdkit
-deepchem
-tensorflow
-torch
-dgl
-dgllife
-chembl-structure-pipeline
-gputil
-humanize
-matplotlib
+pandas==3.0.6
+pandas-stubs==3.0.5.260914
+rdkit==2026.9.1
+chembl-structure-pipeline==1.2.4
+gputil==1.4.0
+humanize==4.16.0
+matplotlib==3.11.2
+jupyter==1.1.1
+python-dotenv==1.2.4
+transformers==5.20.1
+scikit-learn==1.9.1
+torch_geometric==2.8.1
