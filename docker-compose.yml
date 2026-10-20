@@ -1,0 +1,44 @@
+x-common: &common
+  image: ics5200:${VARIANT:-cpu}
+  build:
+    context: .
+    args:
+      VARIANT: ${VARIANT:-cpu}
+  user: "${UID:-1000}:${GID:-1000}"
+  shm_size: "8gb"
+  volumes:
+    - ./data:/app/data
+    - ./experiments:/app/experiments
+    - hf-cache:/cache/huggingface
+
+services:
+  cpu:
+    <<: *common
+
+  gpu:
+    <<: *common
+    image: ics5200:gpu
+    build:
+      context: .
+      args:
+        VARIANT: gpu
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  jupyter:
+    <<: *common
+    # Mount the whole repo so notebook edits persist on the host
+    volumes:
+      - .:/app
+      - hf-cache:/cache/huggingface
+    ports:
+      - "8888:8888"
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --ServerApp.root_dir=/app
+
+volumes:
+  hf-cache:

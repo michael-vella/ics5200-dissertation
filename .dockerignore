@@ -1,0 +1,12 @@
+.git
+.venv
+.venv*/
+.env
+.envrc
+**/__pycache__
+**/.ipynb_checkpoints
+data/processed
+experiments/entries
+Dockerfile
+docker-compose.yml
+.dockerignore

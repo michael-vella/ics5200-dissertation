@@ -16,6 +16,33 @@ Requires that Python is pre-installed on the host machine. Python version: 3.12.
 3. Upgrade `pip` (Python's package manager) by running `pip install --upgrade pip`.
 4. Run `pip install -r requirements.txt` to download any packages required for this project.
 
+### Docker
+
+The image contains the code and Python dependencies only. `data/` and `experiments/` are mounted from the host, so processed datasets and experiment results persist on the host machine.
+
+Using Docker Compose (requires the [Compose plugin](https://docs.docker.com/compose/install/)):
+
+```bash
+docker compose build cpu                                   # or: docker compose build gpu
+docker compose run --rm cpu python create_datasets.py
+docker compose run --rm cpu python run_random_forest.py --dataset tox21
+docker compose run --rm gpu python run_random_forest.py --dataset tox21   # NVIDIA GPU
+docker compose up jupyter                                  # JupyterLab on http://localhost:8888
+```
+
+The `gpu` service requires the NVIDIA driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) on the host. Containers run as UID/GID 1000 by default; if your user differs, run `export UID GID=$(id -g)` first so files written to the mounted directories are owned by you.
+
+Using plain Docker:
+
+```bash
+docker build --build-arg VARIANT=cpu -t ics5200:cpu .      # VARIANT=gpu for CUDA 12.4
+docker run --rm -u $(id -u):$(id -g) \
+    -v "$PWD/data:/app/data" -v "$PWD/experiments:/app/experiments" \
+    ics5200:cpu python run_random_forest.py --dataset tox21
+```
+
+Add `--gpus all` to `docker run` for the GPU image.
+
 ## Datasets
 
 Datasets used in this dissertation.
