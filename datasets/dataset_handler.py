@@ -10,6 +10,7 @@ from datasets.creation_strategies.ecfp import ECFPDatasetCreator
 from datasets.creation_strategies.pyg_with_bonds import PyGBondsDatasetCreator
 from datasets.train_test_strategies.base_strategy import TrainTestStrategy, TrainTestData
 from datasets.train_test_strategies.ecfp import ECFPTrainTestStrategy
+from datasets.train_test_strategies.pyg_with_bonds import PyGBondsTrainTestStrategy
 
 # maps each feature type to the dataset creation strategy responsible for it
 _DATASET_CREATION_STRATEGIES: dict[FeatureType, type[DatasetCreationStrategy]] = {
@@ -20,6 +21,7 @@ _DATASET_CREATION_STRATEGIES: dict[FeatureType, type[DatasetCreationStrategy]] =
 # maps each feature type to the train test retrieval method
 _TRAIN_TEST_STRATEGIES: dict[FeatureType, type[TrainTestStrategy]] = {
     FeatureType.ECFP: ECFPTrainTestStrategy,
+    FeatureType.PYG_WITH_BONDS: PyGBondsTrainTestStrategy,
 }
 
 
