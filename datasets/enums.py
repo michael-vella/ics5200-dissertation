@@ -9,6 +9,8 @@ class FeatureType(StrEnum):
     DGL = "dgl"
     DGL_WITH_BONDS = "dgl_with_bonds"
     PYG_WITH_BONDS = "pyg_with_bonds"
+    CHEMBERTA = "chemberta"
+    MOLFORMER = "molformer"
 
 
 class DatasetSource(StrEnum):
