@@ -5,12 +5,19 @@ import pandas as pd
 
 from constants import (
     DATA_LIT_PCBA_RAW_DIR,
-    DATA_RAW_DIR
+    DATA_RAW_DIR,
+    LOGS_DIR
 )
 
+os.makedirs(LOGS_DIR, exist_ok=True)
+log_file = os.path.join(LOGS_DIR, "create_lit_pcba_csv.log")
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s — %(name)s — %(levelname)s — %(message)s"
+    format="%(asctime)s — %(name)s — %(levelname)s — %(message)s",
+    handlers=[
+        logging.FileHandler(log_file, mode="w"),
+        logging.StreamHandler()
+    ]
 )
 
 logging.info("Creating LIT-PCBA CSV file from raw (.smi) data")
@@ -37,18 +44,26 @@ for root, subdirectories, _ in os.walk(DATA_LIT_PCBA_RAW_DIR):
         actives_df = actives_df.drop(["id"], axis=1)
         decoys_df = decoys_df.drop(["id"], axis=1)
 
-        actives_dupes = actives_df[actives_df.duplicated(keep=False)]
-        decoys_dupes = decoys_df[decoys_df.duplicated(keep=False)]
-        logging.info(
-            f"Duplicate actives: {actives_df.duplicated().sum()} extra rows "
-            f"({len(actives_dupes)} rows involved). Duplicates (top 1): "
-            f"{sorted(actives_dupes['smiles'].unique())[:1]}"
+        # Select distinct within actives and within decoys, logging the
+        # duplicates (and their counts) that were collapsed.
+        actives_dupe_smiles = sorted(
+            actives_df[actives_df.duplicated()]["smiles"].unique()
+        )
+        decoys_dupe_smiles = sorted(
+            decoys_df[decoys_df.duplicated()]["smiles"].unique()
         )
         logging.info(
-            f"Duplicate decoys: {decoys_df.duplicated().sum()} extra rows "
-            f"({len(decoys_dupes)} rows involved). Duplicates (top 1): "
-            f"{sorted(decoys_dupes['smiles'].unique())[:1]}"
+            f"[{subdirectory}] Duplicate actives: "
+            f"{actives_df.duplicated().sum()} extra rows across "
+            f"{len(actives_dupe_smiles)} distinct SMILES"
         )
+        # logging.info(f"Duplicates: {actives_dupe_smiles}")
+        logging.info(
+            f"[{subdirectory}] Duplicate decoys: "
+            f"{decoys_df.duplicated().sum()} extra rows across "
+            f"{len(decoys_dupe_smiles)} distinct SMILES"
+        )
+        # logging.info(f"Duplicates: {decoys_dupe_smiles}")
 
         actives_df = actives_df.drop_duplicates()
         decoys_df = decoys_df.drop_duplicates()
@@ -58,39 +73,36 @@ for root, subdirectories, _ in os.walk(DATA_LIT_PCBA_RAW_DIR):
 
         subset_df = pd.concat([actives_df, decoys_df])
 
-        concat_dupes = subset_df[subset_df.duplicated(subset="smiles", keep=False)]
-        logging.error(f"Duplicates (top 1) after concatenating actives & decoys detected: {sorted(concat_dupes['smiles'].unique())[:1]}")
-
-        if not concat_dupes.empty:
+        # A SMILES present in both actives and decoys is contradictory, so
+        # drop both occurrences entirely (keep=False removes all of them).
+        overlap_smiles = sorted(
+            subset_df[subset_df.duplicated(subset="smiles", keep=False)][
+                "smiles"
+            ].unique()
+        )
+        if overlap_smiles:
             assays_with_duplicates.append(subdirectory)
+            logging.warning(
+                f"[{subdirectory}] SMILES found in BOTH actives & decoys: "
+                f"{len(overlap_smiles)} distinct SMILES dropped from both "
+                f"({2 * len(overlap_smiles)} rows removed)"
+            )
+            # logging.warning(f"SMILES removed: {overlap_smiles}")
+            subset_df = subset_df.drop_duplicates(subset="smiles", keep=False)
+        else:
+            logging.info(
+                f"[{subdirectory}] No SMILES overlap between actives & decoys"
+            )
 
         if len(final_df) == 0:
             final_df = subset_df
         else:
             final_df = pd.merge(final_df, subset_df, how="outer")
 
-logging.info(f"Assays that contain duplicates: '{assays_with_duplicates}'")
+logging.info(
+    f"Assays that contained actives/decoys overlap: "
+    f"'{assays_with_duplicates}'"
+)
 save_dir = DATA_RAW_DIR + "/lit_pcba.csv"
-# logging.info(f"Saving CSV to '{save_dir}'")
-# final_df.to_csv(save_dir, index=False)
-
-# GBA DATASET:
-
-# Duplicates inside actives.smi
-# - Oc1nc2cc(c(cc2nc1O)[N+](=O)[O-])[N+](=O)[O-]
-# - [O-][N+](=O)c1cc2NC(=O)C(=O)Nc2cc1[N+](=O)[O-]
-
-# Duplicates inside inactives.smi (limit 5):
-# - Brc1c(Br)c(Br)c2[nH]nnc2c1Br
-# - Brc1c(NC2=[NH+]CCN2)ccc3nccnc13
-# - Brc1ccc(SCCN2CC[NH+](CCc3ccccc3)CCC2=O)cc1
-# - Brc1ccc(\\C=C\\C[NH2+]CCNS(=O)(=O)c2cccc3cnccc23)cc1
-# - Brc1ccc2[nH]c3c(CC(=O)Nc4ccccc34)c2c1
-
-# SMILES found in both actives.smi & inactives.smi files:
-# - C[C@H](\\C=C(/C)\\C=C\\C(=O)NO)C(=O)c1ccc(cc1)N(C)C
-# - Oc1ccc(CCC(=O)c2c(O)cc(O)cc2O)cc1
-# - Oc1ccc(\\C=C\\C(=O)c2ccc(O)cc2O)cc1
-# - Oc1ccc(cc1)C2=COc3cc(O)cc([O-])c3C2=O
-
-# Assays that contain duplicates: '['GBA', 'FEN1', 'ESR1_ago', 'PPARG', 'ALDH1', 'ESR1_ant', 'MAPK1', 'VDR', 'KAT2A']'
+logging.info(f"Saving CSV to '{save_dir}'")
+final_df.to_csv(save_dir, index=False)

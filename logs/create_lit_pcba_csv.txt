@@ -1,0 +1,93 @@
+2026-10-28 05:33:29,729 — root — INFO — Creating LIT-PCBA CSV file from raw (.smi) data
+2026-10-28 05:33:29,730 — root — INFO — Inside subdirectory: 'TP53'
+2026-10-28 05:33:29,730 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/TP53/actives.smi'
+2026-10-28 05:33:29,730 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/TP53/inactives.smi'
+2026-10-28 05:33:29,739 — root — INFO — [TP53] Duplicate actives: 15 extra rows across 13 distinct SMILES
+2026-10-28 05:33:29,740 — root — INFO — [TP53] Duplicate decoys: 812 extra rows across 642 distinct SMILES
+2026-10-28 05:33:29,743 — root — INFO — [TP53] No SMILES overlap between actives & decoys
+2026-10-28 05:33:29,743 — root — INFO — Inside subdirectory: 'FEN1'
+2026-10-28 05:33:29,743 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/FEN1/actives.smi'
+2026-10-28 05:33:29,743 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/FEN1/inactives.smi'
+2026-10-28 05:33:30,199 — root — INFO — [FEN1] Duplicate actives: 9 extra rows across 8 distinct SMILES
+2026-10-28 05:33:30,249 — root — INFO — [FEN1] Duplicate decoys: 4294 extra rows across 4153 distinct SMILES
+2026-10-28 05:33:30,411 — root — WARNING — [FEN1] SMILES found in BOTH actives & decoys: 8 distinct SMILES dropped from both (16 rows removed)
+2026-10-28 05:33:31,249 — root — INFO — Inside subdirectory: 'PKM2'
+2026-10-28 05:33:31,249 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/PKM2/actives.smi'
+2026-10-28 05:33:31,250 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/PKM2/inactives.smi'
+2026-10-28 05:33:31,565 — root — INFO — [PKM2] Duplicate actives: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:31,592 — root — INFO — [PKM2] Duplicate decoys: 747 extra rows across 733 distinct SMILES
+2026-10-28 05:33:31,664 — root — INFO — [PKM2] No SMILES overlap between actives & decoys
+2026-10-28 05:33:32,606 — root — INFO — Inside subdirectory: 'OPRK1'
+2026-10-28 05:33:32,607 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/OPRK1/actives.smi'
+2026-10-28 05:33:32,607 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/OPRK1/inactives.smi'
+2026-10-28 05:33:32,961 — root — INFO — [OPRK1] Duplicate actives: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:32,992 — root — INFO — [OPRK1] Duplicate decoys: 236 extra rows across 231 distinct SMILES
+2026-10-28 05:33:33,081 — root — INFO — [OPRK1] No SMILES overlap between actives & decoys
+2026-10-28 05:33:34,046 — root — INFO — Inside subdirectory: 'MAPK1'
+2026-10-28 05:33:34,046 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/MAPK1/actives.smi'
+2026-10-28 05:33:34,046 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/MAPK1/inactives.smi'
+2026-10-28 05:33:34,122 — root — INFO — [MAPK1] Duplicate actives: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:34,129 — root — INFO — [MAPK1] Duplicate decoys: 935 extra rows across 718 distinct SMILES
+2026-10-28 05:33:34,151 — root — WARNING — [MAPK1] SMILES found in BOTH actives & decoys: 6 distinct SMILES dropped from both (12 rows removed)
+2026-10-28 05:33:35,022 — root — INFO — Inside subdirectory: 'KAT2A'
+2026-10-28 05:33:35,022 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/KAT2A/actives.smi'
+2026-10-28 05:33:35,022 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/KAT2A/inactives.smi'
+2026-10-28 05:33:35,576 — root — INFO — [KAT2A] Duplicate actives: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:35,627 — root — INFO — [KAT2A] Duplicate decoys: 5287 extra rows across 4600 distinct SMILES
+2026-10-28 05:33:35,778 — root — WARNING — [KAT2A] SMILES found in BOTH actives & decoys: 7 distinct SMILES dropped from both (14 rows removed)
+2026-10-28 05:33:37,102 — root — INFO — Inside subdirectory: 'IDH1'
+2026-10-28 05:33:37,102 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/IDH1/actives.smi'
+2026-10-28 05:33:37,103 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/IDH1/inactives.smi'
+2026-10-28 05:33:37,677 — root — INFO — [IDH1] Duplicate actives: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:37,824 — root — INFO — [IDH1] Duplicate decoys: 2984 extra rows across 2950 distinct SMILES
+2026-10-28 05:33:38,092 — root — INFO — [IDH1] No SMILES overlap between actives & decoys
+2026-10-28 05:33:39,464 — root — INFO — Inside subdirectory: 'GBA'
+2026-10-28 05:33:39,464 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/GBA/actives.smi'
+2026-10-28 05:33:39,464 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/GBA/inactives.smi'
+2026-10-28 05:33:39,819 — root — INFO — [GBA] Duplicate actives: 2 extra rows across 2 distinct SMILES
+2026-10-28 05:33:39,857 — root — INFO — [GBA] Duplicate decoys: 4292 extra rows across 2826 distinct SMILES
+2026-10-28 05:33:39,964 — root — WARNING — [GBA] SMILES found in BOTH actives & decoys: 4 distinct SMILES dropped from both (8 rows removed)
+2026-10-28 05:33:41,042 — root — INFO — Inside subdirectory: 'ESR1_ant'
+2026-10-28 05:33:41,042 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/ESR1_ant/actives.smi'
+2026-10-28 05:33:41,042 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/ESR1_ant/inactives.smi'
+2026-10-28 05:33:41,057 — root — INFO — [ESR1_ant] Duplicate actives: 14 extra rows across 7 distinct SMILES
+2026-10-28 05:33:41,058 — root — INFO — [ESR1_ant] Duplicate decoys: 1104 extra rows across 841 distinct SMILES
+2026-10-28 05:33:41,069 — root — WARNING — [ESR1_ant] SMILES found in BOTH actives & decoys: 8 distinct SMILES dropped from both (16 rows removed)
+2026-10-28 05:33:41,939 — root — INFO — Inside subdirectory: 'PPARG'
+2026-10-28 05:33:41,939 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/PPARG/actives.smi'
+2026-10-28 05:33:41,939 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/PPARG/inactives.smi'
+2026-10-28 05:33:41,951 — root — INFO — [PPARG] Duplicate actives: 3 extra rows across 2 distinct SMILES
+2026-10-28 05:33:41,952 — root — INFO — [PPARG] Duplicate decoys: 1126 extra rows across 868 distinct SMILES
+2026-10-28 05:33:41,955 — root — WARNING — [PPARG] SMILES found in BOTH actives & decoys: 2 distinct SMILES dropped from both (4 rows removed)
+2026-10-28 05:33:42,863 — root — INFO — Inside subdirectory: 'MTORC1'
+2026-10-28 05:33:42,863 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/MTORC1/actives.smi'
+2026-10-28 05:33:42,863 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/MTORC1/inactives.smi'
+2026-10-28 05:33:42,909 — root — INFO — [MTORC1] Duplicate actives: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:42,912 — root — INFO — [MTORC1] Duplicate decoys: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:42,923 — root — INFO — [MTORC1] No SMILES overlap between actives & decoys
+2026-10-28 05:33:44,027 — root — INFO — Inside subdirectory: 'ESR1_ago'
+2026-10-28 05:33:44,027 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/ESR1_ago/actives.smi'
+2026-10-28 05:33:44,028 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/ESR1_ago/inactives.smi'
+2026-10-28 05:33:44,038 — root — INFO — [ESR1_ago] Duplicate actives: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:44,039 — root — INFO — [ESR1_ago] Duplicate decoys: 1184 extra rows across 919 distinct SMILES
+2026-10-28 05:33:44,043 — root — WARNING — [ESR1_ago] SMILES found in BOTH actives & decoys: 6 distinct SMILES dropped from both (12 rows removed)
+2026-10-28 05:33:44,951 — root — INFO — Inside subdirectory: 'VDR'
+2026-10-28 05:33:44,951 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/VDR/actives.smi'
+2026-10-28 05:33:44,951 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/VDR/inactives.smi'
+2026-10-28 05:33:45,374 — root — INFO — [VDR] Duplicate actives: 13 extra rows across 13 distinct SMILES
+2026-10-28 05:33:45,442 — root — INFO — [VDR] Duplicate decoys: 5847 extra rows across 4984 distinct SMILES
+2026-10-28 05:33:45,614 — root — WARNING — [VDR] SMILES found in BOTH actives & decoys: 29 distinct SMILES dropped from both (58 rows removed)
+2026-10-28 05:33:47,066 — root — INFO — Inside subdirectory: 'ADRB2'
+2026-10-28 05:33:47,066 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/ADRB2/actives.smi'
+2026-10-28 05:33:47,066 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/ADRB2/inactives.smi'
+2026-10-28 05:33:47,515 — root — INFO — [ADRB2] Duplicate actives: 0 extra rows across 0 distinct SMILES
+2026-10-28 05:33:47,559 — root — INFO — [ADRB2] Duplicate decoys: 570 extra rows across 531 distinct SMILES
+2026-10-28 05:33:47,674 — root — INFO — [ADRB2] No SMILES overlap between actives & decoys
+2026-10-28 05:33:48,951 — root — INFO — Inside subdirectory: 'ALDH1'
+2026-10-28 05:33:48,951 — root — INFO — Actives (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/ALDH1/actives.smi'
+2026-10-28 05:33:48,951 — root — INFO — Decoys (.smi) file: '/home/michael/git-repos/ics5200-dissertation/data/lit_pcba_raw/ALDH1/inactives.smi'
+2026-10-28 05:33:49,133 — root — INFO — [ALDH1] Duplicate actives: 23 extra rows across 21 distinct SMILES
+2026-10-28 05:33:49,148 — root — INFO — [ALDH1] Duplicate decoys: 2208 extra rows across 1415 distinct SMILES
+2026-10-28 05:33:49,195 — root — WARNING — [ALDH1] SMILES found in BOTH actives & decoys: 22 distinct SMILES dropped from both (44 rows removed)
+2026-10-28 05:33:50,319 — root — INFO — Assays that contained actives/decoys overlap: '['FEN1', 'MAPK1', 'KAT2A', 'GBA', 'ESR1_ant', 'PPARG', 'ESR1_ago', 'VDR', 'ALDH1']'
+2026-10-28 05:33:50,319 — root — INFO — Saving CSV to '/home/michael/git-repos/ics5200-dissertation/data/raw/lit_pcba.csv'

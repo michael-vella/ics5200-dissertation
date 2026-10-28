@@ -8,3 +8,5 @@ DATA_LIT_PCBA_RAW_DIR = DATA_DIR + "/lit_pcba_raw"
 
 EXPERIMENT_DIR = Path(__file__).parent / "experiments"
 EXPERIMENT_ENTRIES_DIR = EXPERIMENT_DIR / "entries"
+
+LOGS_DIR = str(Path(__file__).parent / "logs")
