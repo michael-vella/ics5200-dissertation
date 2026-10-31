@@ -1,7 +1,11 @@
 import logging
 
+from dotenv import load_dotenv
+
 from datasets.enums import FeatureType, DatasetSource
 from datasets.dataset_handler import DatasetHandler
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
