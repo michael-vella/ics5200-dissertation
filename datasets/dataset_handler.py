@@ -111,6 +111,7 @@ class DatasetHandler:
             DatasetSource.TOX21: ["SR-HSE", "SR-MMP", "SR-p53"],
             DatasetSource.MUV: ["MUV-832", "MUV-846", "MUV-852", "MUV-858", "MUV-859"],
             DatasetSource.DUDE_GPCR: ["adrb2", "cxcr4"],
+            DatasetSource.LIT_PCBA: ["VDR", "MAPK1", "GBA", "KAT2A"],
         }
 
         pdf = self.load_processed_dataset(dataset_source=dataset_source, feature_type=feature_type)
