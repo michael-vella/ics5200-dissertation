@@ -10,7 +10,12 @@ from transformers import AutoModel, AutoTokenizer
 from .base_strategy import DatasetCreationStrategy
 
 # MLM-pretrained RoBERTa checkpoint; its pooler head is untrained, so molecule
-# embeddings are obtained by mean-pooling the token embeddings (see `_embed`)
+# embeddings are obtained by mean-pooling the token embeddings (see `_embed`).
+# Known limitation: the checkpoint's BPE tokenizer ships without merges, so it only emits
+# single characters and silently drops the rest ('Cl' -> 'C', 'Br' -> 'B', '[C@@H]' -> 'C'),
+# losing halogens, stereochemistry, charges and explicit Hs. The model was pretrained on this
+# same lossy tokenisation (it never predicts multi-character tokens in masked-token tests),
+# so the shipped tokenizer is used as-is to stay consistent with pretraining
 _MODEL_NAME = "DeepChem/ChemBERTa-77M-MLM"
 # number of molecules featurised per forward pass through the transformer
 _BATCH_SIZE = 64

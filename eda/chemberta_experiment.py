@@ -10,6 +10,9 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model.eval()
 
 smiles = ["Cn1c(=O)c2c(ncn2C)n(C)c1=O", "CC(=O)Oc1ccccc1C(=O)O"]
+# Note: this tokenizer ships without BPE merges, so it drops multi-character tokens
+# ('Cl' -> 'C', '[C@@H]' -> 'C'). The model was pretrained on this same tokenisation,
+# so it is used as-is (see `datasets/creation_strategies/chemberta.py`).
 inputs = tokenizer(smiles, padding=True, return_tensors="pt")
 
 with torch.no_grad():
