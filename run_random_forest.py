@@ -19,6 +19,9 @@ from datasets.dataset_handler import DatasetHandler
 from experiment_helper import ExperimentHelper
 from constants import EXPERIMENT_ENTRIES_DIR
 
+# RF needs fixed-length feature vectors, so graph-based feature types are excluded
+SUPPORTED_FEATURE_TYPES = [FeatureType.ECFP, FeatureType.CHEMBERTA, FeatureType.MOLFORMER]
+
 
 class RoundEntry(TypedDict):
     assay_target: str
@@ -58,6 +61,13 @@ def main() -> None:
         help="Dataset to run the experiments on."
     )
     parser.add_argument(
+        "--feature_type",
+        type=FeatureType,
+        choices=SUPPORTED_FEATURE_TYPES,
+        required=True,
+        help="Fixed-length molecular feature representation to train the Random Forest on.",
+    )
+    parser.add_argument(
         "--n_estimators",
         type=int,
         default=100,
@@ -87,9 +97,7 @@ def main() -> None:
     dataset_source = DatasetSource(args.dataset)
     persist_plots = args.persist_plots
     random_seed = args.initial_random_seed
-
-    # hard-code the feature type as only ECFP fingerprints can be used for RF
-    feature_type = FeatureType.ECFP
+    feature_type = FeatureType(args.feature_type)
 
     dataset_source_val = dataset_source.value
     feature_type_val = feature_type.value
@@ -153,8 +161,8 @@ def main() -> None:
                 train_df = pd.concat([test_negative_df, test_positive_df])
                 test_df = test_df.drop(train_df.index)
 
-                train_X, train_y = list(train_df['mol'].to_numpy()), train_df['y'].to_numpy(dtype=np.int16)
-                test_X, test_y = list(test_df['mol'].to_numpy()), test_df['y'].to_numpy(dtype=np.int16)
+                train_X, train_y = np.stack(train_df['mol'].to_numpy()), train_df['y'].to_numpy(dtype=np.int16)
+                test_X, test_y = np.stack(test_df['mol'].to_numpy()), test_df['y'].to_numpy(dtype=np.int16)
 
                 train_positive_count = int((train_y == 1).sum())
                 test_positive_count = int((test_y == 1).sum())

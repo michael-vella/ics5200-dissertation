@@ -116,7 +116,9 @@ class ExperimentHelper:
         physical_cpu_count = psutil.cpu_count(logical=False)
         logical_cpu_count = psutil.cpu_count()  # physical count X no. of threads per physical core
         try:
-            cuda_version = ExperimentHelper.get_cmd_output('nvcc --version | grep -E "Build"')
+            cuda_version = ExperimentHelper.get_cmd_output(
+                'nvidia-smi | grep -oP "CUDA Version: \\K[0-9.]+"'
+            )
         except subprocess.CalledProcessError:
             cuda_version = "Not Available"
         try:
