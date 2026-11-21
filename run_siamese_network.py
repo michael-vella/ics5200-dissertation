@@ -445,6 +445,23 @@ def safe_roc_auc_score(targets: np.ndarray, scores: np.ndarray) -> float:
     return float(roc_auc_score(targets, scores))
 
 
+def safe_average_precision_score(targets: np.ndarray, scores: np.ndarray) -> float:
+    """
+    Computes the average precision (PR-AUC), returning NaN when only one class is present.
+
+    Args:
+        targets (np.ndarray): Binary targets.
+        scores (np.ndarray): Predicted probabilities for the positive class.
+
+    Returns:
+        float: The average precision, or NaN if it is undefined for these targets.
+    """
+    if len(np.unique(targets)) < 2:
+        return float("nan")
+
+    return float(average_precision_score(targets, scores))
+
+
 def format_mean_std(values: list[float]) -> str:
     """
     Formats a list of per-round scores as a 'mean ± standard deviation' string.
@@ -951,7 +968,7 @@ def main() -> None:
 
                 round_accuracy = accuracy_score(pair_targets, preds_y)
                 round_roc = safe_roc_auc_score(pair_targets, probs_y)
-                round_prc = average_precision_score(pair_targets, probs_y)
+                round_prc = safe_average_precision_score(pair_targets, probs_y)
 
                 false_positive_rate, true_positive_rate, _ = roc_curve(pair_targets, probs_y)
                 precision, recall, _ = precision_recall_curve(pair_targets, probs_y)
@@ -1012,7 +1029,8 @@ def main() -> None:
 
             logger.info(
                 f"Results for the '{target}' assay target using '{no_positive}' positives and "
-                f"'{no_negative}' negatives. Accuracy: '{final_accuracy}'. ROC: '{final_roc}'. PRC: '{final_prc}'"
+                f"'{no_negative}' negatives. Accuracy: '{final_accuracy}'. ROC: '{final_roc}'. "
+                f"PRC: '{final_prc}'"
             )
 
             summary_rows.append(
