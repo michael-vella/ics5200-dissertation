@@ -31,6 +31,11 @@ from experiment_helper import ExperimentHelper
 # the GCN encoder, every other (fixed-length vector) feature type with the MLP encoder
 GRAPH_FEATURE_TYPES = [FeatureType.PYG_WITH_BONDS]
 VECTOR_FEATURE_TYPES = [FeatureType.ECFP, FeatureType.CHEMBERTA, FeatureType.MOLFORMER]
+DEFAULT_MLP_HIDDEN_DIMS: dict[FeatureType, tuple[int, ...]] = {
+    FeatureType.ECFP: (1000, 500),
+    FeatureType.MOLFORMER: (512, 256),
+    FeatureType.CHEMBERTA: (256,),
+}
 SUPPORTED_FEATURE_TYPES = GRAPH_FEATURE_TYPES + VECTOR_FEATURE_TYPES
 
 
@@ -250,8 +255,7 @@ class SiameseNetwork(nn.Module):
 def build_encoder(
     feature_type: FeatureType,
     sample_molecule,
-    embedding_size: int,
-    mlp_hidden_dims: tuple[int, ...],
+    embedding_size: int = 128,
 ) -> tuple[nn.Module, int]:
     """
     Builds the encoder matching a feature type and infers its input dimensionality
@@ -262,8 +266,6 @@ def build_encoder(
         sample_molecule: A single molecule taken from the dataset's 'mol' column,
             i.e. a PyG graph for graph feature types and a feature vector otherwise.
         embedding_size (int): Dimensionality of the embeddings the encoder produces.
-        mlp_hidden_dims (tuple[int, ...]): Hidden layer widths of the MLP encoder.
-            Ignored for graph feature types.
 
     Returns:
         tuple[nn.Module, int]: The encoder and its input dimensionality.
@@ -273,10 +275,12 @@ def build_encoder(
         return GCNEncoder(in_channels=in_features, embedding_size=embedding_size), in_features
 
     in_features = int(np.asarray(sample_molecule).shape[-1])
+    hidden_dims = DEFAULT_MLP_HIDDEN_DIMS[feature_type]
+
     encoder = MLPEncoder(
         in_features=in_features,
         embedding_size=embedding_size,
-        hidden_dims=mlp_hidden_dims,
+        hidden_dims=hidden_dims,
     )
 
     return encoder, in_features
@@ -518,7 +522,6 @@ def train_siamese_network(
     min_learning_rate: float,
     lr_patience: int,
     embedding_size: int,
-    mlp_hidden_dims: tuple[int, ...],
     device: torch.device,
     seed: int,
     log_every: int,
@@ -546,8 +549,6 @@ def train_siamese_network(
         lr_patience (int): Number of episodes without improvement before the
             learning rate is reduced.
         embedding_size (int): Dimensionality of the molecular embeddings.
-        mlp_hidden_dims (tuple[int, ...]): Hidden layer widths of the MLP encoder,
-            used for the fixed-length vector feature types.
         device (torch.device): Device the network is trained on.
         seed (int): Seed controlling episode sampling and task shuffling.
         log_every (int): Number of episodes between progress log entries.
@@ -574,7 +575,6 @@ def train_siamese_network(
         feature_type=feature_type,
         sample_molecule=sample_molecule,
         embedding_size=embedding_size,
-        mlp_hidden_dims=mlp_hidden_dims,
     )
     logger.info(f"Built the '{type(encoder).__name__}' encoder over '{in_features}' input features.")
 
@@ -755,15 +755,6 @@ def main() -> None:
         help="Dimensionality of the molecular embedding learnt by the shared encoder.",
     )
     parser.add_argument(
-        "--mlp_hidden_dims",
-        type=int,
-        nargs="+",
-        default=[1000, 500],
-        help="Hidden layer widths of the MLP encoder used for the fixed-length feature "
-             "vector feature types. Defaults to the 2048 -> 1000 -> 500 -> 128 funnel of "
-             "the reference implementation. Ignored for graph feature types.",
-    )
-    parser.add_argument(
         "--n_rounds",
         type=int,
         default=20,
@@ -808,7 +799,6 @@ def main() -> None:
     min_learning_rate = args.min_learning_rate
     lr_patience = args.lr_patience
     embedding_size = args.embedding_size
-    mlp_hidden_dims = tuple(args.mlp_hidden_dims)
     n_rounds = args.n_rounds
     random_seed = args.initial_random_seed
     eval_batch_size = args.eval_batch_size
@@ -848,7 +838,6 @@ def main() -> None:
     logger.info(f"Minimum learning rate (early stop): '{min_learning_rate}'")
     logger.info(f"Learning rate plateau patience: '{lr_patience}'")
     logger.info(f"Embedding size: '{embedding_size}'")
-    logger.info(f"MLP encoder hidden dimensions: '{mlp_hidden_dims}'")
     logger.info(f"Number of test rounds: '{n_rounds}'")
     logger.info(f"Generate & persist plots: '{persist_plots}'")
     logger.info(f"Initial random seed: '{random_seed}'")
@@ -886,7 +875,6 @@ def main() -> None:
             min_learning_rate=min_learning_rate,
             lr_patience=lr_patience,
             embedding_size=embedding_size,
-            mlp_hidden_dims=mlp_hidden_dims,
             device=device,
             seed=random_seed,
             log_every=log_every,
