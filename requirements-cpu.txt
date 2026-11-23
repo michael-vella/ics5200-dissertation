@@ -1,3 +1,7 @@
 -r requirements.txt
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.6.0+cpu
+# optional, but silences PyG's scatter(reduce='max') warning raised by the max
+# aggregations in the GCN encoder; must match the torch build pinned above
+--find-links https://data.pyg.org/whl/torch-2.6.0+cpu.html
+torch-scatter==2.1.2+pt26cpu

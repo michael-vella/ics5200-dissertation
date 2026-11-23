@@ -528,6 +528,52 @@ def eligible_train_tasks(
     return eligible
 
 
+def validate_test_tasks(
+    test_dfs: dict[str, pd.DataFrame],
+    max_support_positive: int,
+    max_support_negative: int,
+    logger: logging.Logger,
+) -> None:
+    """
+    Fails fast when a test assay target is too small for the largest support set.
+
+    Every test target must yield a result, so unlike the training targets, which
+    `eligible_train_tasks` simply skips, a test target that cannot provide the
+    largest support set (and still leave at least one molecule of each class for
+    the query set) is a fatal error. It is raised up front, before any network is
+    trained, rather than part-way through testing after a full training run has
+    already been spent.
+
+    Args:
+        test_dfs (dict[str, pd.DataFrame]): Per-target test DataFrames.
+        max_support_positive (int): Largest number of support actives across all combinations.
+        max_support_negative (int): Largest number of support inactives/decoys across all combinations.
+        logger (logging.Logger): Logger used to report the validation outcome.
+
+    Raises:
+        ValueError: If any test target cannot fill the largest support set.
+    """
+    too_small = []
+    for target, test_df in test_dfs.items():
+        n_positive = int((test_df["y"] == 1).sum())
+        n_negative = int((test_df["y"] == 0).sum())
+
+        if n_positive <= max_support_positive or n_negative <= max_support_negative:
+            too_small.append(f"'{target}' ('{n_positive}' actives, '{n_negative}' inactives/decoys)")
+
+    if too_small:
+        raise ValueError(
+            f"The following test assay targets cannot fill the largest "
+            f"'{max_support_positive}'+/'{max_support_negative}'- support set and still leave a "
+            f"query molecule of each class: {', '.join(too_small)}."
+        )
+
+    logger.info(
+        f"All '{len(test_dfs)}' test assay targets can fill the largest "
+        f"'{max_support_positive}'+/'{max_support_negative}'- support set."
+    )
+
+
 def train_siamese_network(
     train_dfs: dict[str, pd.DataFrame],
     feature_type: FeatureType,
@@ -861,6 +907,15 @@ def main() -> None:
     logger.info(f"Combinations of no. of positive vs. no. of negative to be used for the support set: '{combinations}'")
 
     train_dfs, test_dfs = handler.load_train_test_set(dataset_source=dataset_source, feature_type=feature_type)
+
+    # fail fast before training if any test target is too small for the largest support set,
+    # rather than crashing part-way through testing after a full training run has been spent
+    validate_test_tasks(
+        test_dfs=test_dfs,
+        max_support_positive=max(no_positive for no_positive, _ in combinations),
+        max_support_negative=max(no_negative for _, no_negative in combinations),
+        logger=logger,
+    )
 
     round_entry_rows: list[RoundEntry] = []
     summary_rows: list[SummaryRow] = []
